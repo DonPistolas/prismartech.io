@@ -15,9 +15,7 @@
       --borde: rgba(46,204,113,0.25);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -56,78 +54,10 @@
       width: 100%;
     }
 
-    .card {
+    a.card {
       background: var(--bg2);
       border: 1px solid var(--borde);
       padding: 24px;
       width: 260px;
       text-align: left;
-      cursor: pointer;
-      transition: transform 0.25s ease, border-color 0.25s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-6px);
-      border-color: var(--verde);
-    }
-
-    .card h2 {
-      margin: 0 0 10px;
-      font-size: 1.2rem;
-      color: var(--verde);
-    }
-
-    .card span {
-      font-size: 0.85rem;
-      color: var(--gris);
-      line-height: 1.5;
-    }
-
-    footer {
-      margin-top: 60px;
-      font-size: 0.75rem;
-      color: #7f8c8d;
-    }
-  </style>
-</head>
-<body>
-
-  <h1>PrismarTech</h1>
-
-  <p>
-    Laboratorio de tecnología aplicada enfocado en datos, sensores, satélites
-    y sistemas inteligentes para resolver problemas reales en campo.
-  </p>
-
-  <div class="cards">
-
-    <!-- ✅ AGROTECH (FUNCIONA) -->
-    <div class="card" onclick="location>
-      <span>
-        AgroSense MVP · Satélite + IoT + IA · Agricultura prescriptiva
-      </span>
-    </div>
-
-    <!-- FUTUROS -->
-    <div class="card">
-      <h2>📊 Data & IA</h2>
-      <span>
-        Proyectos futuros de analítica, modelos predictivos y visualización.
-      </span>
-    </div>
-
-    <div class="card">
-      <h2>🛰️ Geoespacial</h2>
-      <span>
-        Mapas, imágenes satelitales y monitoreo territorial.
-      </span>
-    </div>
-
-  </div>
-
-  <footer>
-    © 2026 · PrismarTech · Jalisco, MX
-  </footer>
-
-</body>
-</html>
+      text-decoration: none;
