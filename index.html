@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PrismarTech</title>
+  <title>PrismarTech | Monitoreo Agrícola</title>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
     :root {
       --bg: #0a0f0d;
       --bg2: #0f1a14;
       --verde: #2ecc71;
+      --verde-brillante: #39ff14;
       --gris: #95a5a6;
       --blanco: #ecf0f1;
       --borde: rgba(46,204,113,0.25);
@@ -22,42 +25,141 @@
       min-height: 100vh;
       background: var(--bg);
       color: var(--blanco);
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      text-align: center;
       padding: 20px;
     }
 
-    h1 {
-      font-size: 2.6rem;
-      margin-bottom: 10px;
-      color: var(--verde);
+    header {
+      margin-bottom: 30px;
+      text-align: center;
     }
 
-    p {
-      max-width: 680px;
-      font-size: 1rem;
+    h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      color: var(--verde);
+      letter-spacing: 2px;
+    }
+
+    .tagline {
       color: var(--gris);
-      margin-bottom: 40px;
-      line-height: 1.6;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    /* Contenedor del Mapa */
+    #map {
+      height: 400px;
+      width: 100%;
+      max-width: 900px;
+      border-radius: 12px;
+      border: 1px solid var(--borde);
+      margin-bottom: 30px;
+      z-index: 1;
     }
 
     .cards {
       display: flex;
-      gap: 24px;
+      gap: 20px;
       flex-wrap: wrap;
       justify-content: center;
       max-width: 900px;
       width: 100%;
     }
 
-    a.card {
+    .card {
       background: var(--bg2);
       border: 1px solid var(--borde);
-      padding: 24px;
-      width: 260px;
-      text-align: left;
-      text-decoration: none;
+      padding: 20px;
+      width: 280px;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: var(--verde);
+      box-shadow: 0 0 15px rgba(46,204,113,0.1);
+    }
+
+    .card h3 {
+      margin: 0 0 10px 0;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--gris);
+      letter-spacing: 1px;
+    }
+
+    .card .value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--blanco);
+    }
+
+    .card .unit {
+      font-size: 1rem;
+      color: var(--verde);
+      margin-left: 5px;
+    }
+
+    .status {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--verde-brillante);
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>PRISMAR<span style="color:var(--blanco)">TECH</span></h1>
+    <div class="tagline">Inteligencia Agrícola | Jalisco, MX</div>
+  </header>
+
+  <div id="map"></div>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Salud Vegetal (NDVI)</h3>
+      <div class="value">0.68 <span class="unit">Óptimo</span></div>
+    </div>
+    
+    <div class="card">
+      <h3>Humedad de Suelo</h3>
+      <div class="value">24 <span class="unit">%</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Estado del Sistema</h3>
+      <div class="value"><span class="status"></span> <span style="font-size: 1.2rem;">En línea</span></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <script>
+    // 1. Inicializar mapa centrado en Jalisco (ajusta las coordenadas a tu rancho)
+    const map = L.map('map').setView([20.62, -103.23], 13);
+
+    // 2. Capa de satélite gratuita (Esri World Imagery)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'PrismarTech - Esri, Maxar, Earthstar Geographics'
+    }).addTo(map);
+
+    // 3. Aquí es donde pegarías tu GeoJSON más adelante
+    // Por ahora, un marcador de ejemplo en Tonalá/Tlaquepaque
+    L.circle([20.62, -103.23], {
+      color: '#2ecc71',
+      fillColor: '#2ecc71',
+      fillOpacity: 0.5,
+      radius: 200
+    }).addTo(map).bindPopup('Parcela: El Diamante');
+  </script>
+
+</body>
+</html>
