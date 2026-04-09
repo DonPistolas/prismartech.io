@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroSense MVP — Arquitectura del Sistema</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0f0d;
+    --bg2: #0f1a14;
+    --verde: #2ecc71;
+    --verde2: #27ae60;
+    --verde3: #1a7a42;
+    --azul: #3498db;
+    --naranja: #f39c12;
+    --rojo: #e74c3c;
+    --gris: #95a5a6;
+    --blanco: #ecf0f1;
+    --panel: rgba(20,40,25,0.85);
+    --borde: rgba(46,204,113,0.25);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--blanco);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--borde);
+    background: var(--bg2);
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--verde);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--blanco); }
+  .badge {
+    background: rgba(46,204,113,0.1);
+    border: 1px solid var(--borde);
+    color: var(--verde);
+    padding: 4px 14px;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+  }
+  .meta {
+    font-size: 0.65rem;
+    color: var(--gris);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  /* ── Grid principal ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 0;
+    min-height: calc(100vh - 70px);
+  }
+
+  /* ── Canvas isométrico ── */
+  .iso-container {
+    position: relative;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+  }
+
+  .scene-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    color: var(--gris);
+    text-transform: uppercase;
+    align-self: flex-start;
+  }
+
+  svg.isometric {
+    width: 100%;
+    max-width: 700px;
+    filter: drop-shadow(0 20px 60px rgba(46,204,113,0.08));
+  }
+
+  /* ── Sidebar specs ── */
+  .sidebar {
+    background: var(--bg2);
+    border-left: 1px solid var(--borde);
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  .section-header {
+    padding: 16px 24px;
+    background: rgba(46,204,113,0.06);
+    border-bottom: 1px solid var(--borde);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--verde);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-header::before {
+    content: '';
+    display: block;
+    width: 8px; height: 8px;
+    background: var(--verde);
+    border-radius: 50%;
+  }
+
+  .spec-block {
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(46,204,113,0.1);
+  }
+
+  .spec-label {
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--gris);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+    font-size: 0.72rem;
+    gap: 8px;
+  }
+  .spec-key { color: var(--gris); flex-shrink: 0; }
+  .spec-val { color: var(--blanco); text-align: right; font-size: 0.68rem; }
+  .spec-val.green { color: var(--verde); }
+  .spec-val.blue { color: var(--azul); }
+  .spec-val.orange { color: var(--naranja); }
+  .spec-val.red { color: var(--rojo); }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.58rem;
+    letter-spacing: 1px;
+    border-radius: 2px;
+    margin-right: 4px;
+    margin-bottom: 3px;
+  }
+  .pill-g { background: rgba(46,204,113,0.15); color: var(--verde); border: 1px solid rgba(46,204,113,0.3); }
+  .pill-b { background: rgba(52,152,219,0.15); color: var(--azul); border: 1px solid rgba(52,152,219,0.3); }
+  .pill-o { background: rgba(243,156,18,0.15); color: var(--naranja); border: 1px solid rgba(243,156,18,0.3); }
+
+  /* ── Pipeline flow ── */
+  .pipeline {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(46,204,113,0.1);
+  }
+  .pipe-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .pipe-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 22px;
+    bottom: -12px;
+    width: 1px;
+    background: var(--borde);
+  }
+  .pipe-num {
+    width: 20px; height: 20px;
+    background: rgba(46,204,113,0.1);
+    border: 1px solid var(--verde3);
+    color: var(--verde);
+    font-size: 0.58rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .pipe-content { flex: 1; }
+  .pipe-title {
+    font-size: 0.68rem;
+    color: var(--blanco);
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .pipe-sub {
+    font-size: 0.6rem;
+    color: var(--gris);
+    line-height: 1.5;
+  }
+
+  /* ── BOM Table ── */
+  .bom-table {
+    width: 100%;
+    font-size: 0.62rem;
+    border-collapse: collapse;
+    padding: 0 24px;
+    display: block;
+  }
+  .bom-table th {
+    color: var(--verde);
+    text-align: left;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--borde);
+    letter-spacing: 1px;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+  }
+  .bom-table td {
+    padding: 7px 0;
+    color: var(--gris);
+    border-bottom: 1px solid rgba(46,204,113,0.06);
+    vertical-align: top;
+  }
+  .bom-table td:first-child { color: var(--blanco); width: 55%; }
+  .bom-table td:last-child { color: var(--verde); text-align: right; }
+
+  /* ── Phase timeline ── */
+  .timeline {
+    padding: 20px 24px;
+  }
+  .phase {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+    align-items: start;
+  }
+  .phase-week {
+    font-size: 0.6rem;
+    color: var(--verde);
+    letter-spacing: 1px;
+    padding-top: 2px;
+  }
+  .phase-body {}
+  .phase-name {
+    font-size: 0.7rem;
+    color: var(--blanco);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .phase-goal {
+    font-size: 0.6rem;
+    color: var(--gris);
+    line-height: 1.5;
+  }
+
+  /* ── Alert preview ── */
+  .alert-preview {
+    margin: 0 24px 20px;
+    background: rgba(231,76,60,0.08);
+    border: 1px solid rgba(231,76,60,0.25);
+    padding: 14px;
+    font-size: 0.62rem;
+    line-height: 1.8;
+    color: var(--gris);
+  }
+  .alert-preview .al-head {
+    color: var(--rojo);
+    font-weight: 700;
+    font-size: 0.7rem;
+    margin-bottom: 6px;
+  }
+  .alert-preview .al-green { color: var(--verde); }
+
+  /* ── Footer ── */
+  .bottom-bar {
+    grid-column: 1 / -1;
+    background: var(--bg2);
+    border-top: 1px solid var(--borde);
+    padding: 12px 40px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    font-size: 0.62rem;
+    color: var(--gris);
+    flex-wrap: wrap;
+  }
+  .stat { display: flex; gap: 8px; }
+  .stat-val { color: var(--verde); font-weight: 700; }
+
+  /* ── Tooltip ── */
+  .layer-label {
+    cursor: default;
+    transition: opacity 0.2s;
+  }
+  .layer-label:hover { opacity: 0.7; }
+
+  /* ── Scan line animation ── */
+  @keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+  .scanline {
+    pointer-events: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(transparent, rgba(46,204,113,0.06), transparent);
+    animation: scan 6s linear infinite;
+    z-index: 9999;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .live-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--verde);
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<header>
+  <div>
+    <div class="logo">Agro<span>Sense</span> <span style="color:var(--gris);font-weight:400">MVP</span></div>
+    <div style="font-size:0.6rem;color:var(--gris);margin-top:3px;">El Diamante · Tonalá, Jalisco · ~30 ha Agave + Maíz</div>
+  </div>
+  <div class="badge">ARQUITECTURA DEL SISTEMA v1.0</div>
+  <div class="meta">
+    <div><span class="live-dot"></span>Sistema Prescriptivo Agrícola</div>
+    <div>Satélite + IoT + IA · Jalisco MX</div>
+  </div>
+</header>
+
+<div class="main-grid">
+
+  <!-- ── VISTA ISOMÉTRICA ── -->
+  <div class="iso-container">
+    <div class="scene-title">Vista Isométrica — Pipeline de Datos</div>
+
+    <svg class="isometric" viewBox="0 0 680 620" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- gradientes -->
+        <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0a1a10"/>
+          <stop offset="100%" stop-color="#0a0f0d"/>
+        </linearGradient>
+        <linearGradient id="gVerde" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#2ecc71" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#1a7a42" stop-opacity="0.9"/>
+        </linearGradient>
+        <linearGradient id="gAzul" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#3498db" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#1a5276" stop-opacity="0.9"/>
+        </linearGradient>
+        <linearGradient id="gNaranja" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#f39c12" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#b7770d" stop-opacity="0.9"/>
+        </linearGradient>
+        <linearGradient id="gRojo" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#e74c3c" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#922b21" stop-opacity="0.9"/>
+        </linearGradient>
+        <linearGradient id="gGris" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#4a6860" stop-opacity="0.9"/>
+          <stop offset="100%" stop-color="#2c3e30" stop-opacity="0.9"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow2">
+          <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <!-- pattern campo -->
+        <pattern id="campo" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+          <rect width="16" height="16" fill="#0f2218"/>
+          <line x1="0" y1="8" x2="16" y2="8" stroke="#1a3a24" stroke-width="0.5"/>
+          <line x1="8" y1="0" x2="8" y2="16" stroke="#1a3a24" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+
+      <!-- fondo -->
+      <rect width="680" height="620" fill="url(#gSky)"/>
+
+      <!-- ═══════════════════════════════════
+           CAMPO / PARCELA (fondo isométrico)
+      ═══════════════════════════════════ -->
+      <!-- suelo parcela -->
+      <polygon points="340,440 100,310 340,180 580,310" fill="url(#campo)" stroke="#1a4a28" stroke-width="1"/>
+      <!-- hileras de cultivo (agave) -->
+      <g opacity="0.6">
+        <!-- hilera 1 -->
+        <ellipse cx="200" cy="310" rx="12" ry="7" fill="#1e6b3a" stroke="#2ecc71" stroke-width="0.5"/>
+        <ellipse cx="240" cy="290" rx="12" ry="7" fill="#1e6b3a" stroke="#2ecc71" stroke-width="0.5"/>
+        <ellipse cx="280" cy="270" rx="12" ry="7" fill="#1e6b3a" stroke="#2ecc71" stroke-width="0.5"/>
+        <!-- hilera 2 -->
+        <ellipse cx="220" cy="330" rx="12" ry="7" fill="#1a5a32" stroke="#27ae60" stroke-width="0.5"/>
+        <ellipse cx="260" cy="310" rx="12" ry="7" fill="#1a5a32" stroke="#27ae60" stroke-width="0.5"/>
+        <ellipse cx="300" cy="290" rx="12" ry="7" fill="#1a5a32" stroke="#27ae60" stroke-width="0.5"/>
+        <!-- hilera 3 -->
+        <ellipse cx="320" cy="340" rx="12" ry="7" fill="#1e6b3a" stroke="#2ecc71" stroke-width="0.5"/>
+        <ellipse cx="360" cy="320" rx="12" ry="7" fill="#1e6b3a" stroke="#2ecc71" stroke-width="0.5"/>
+        <ellipse cx="400" cy="300" rx="12" ry="7" fill="#1e6b3a" stroke="#2ecc71" stroke-width="0.5"/>
+        <!-- hilera 4 -->
+        <ellipse cx="380" cy="350" rx="12" ry="7" fill="#1a5a32" stroke="#27ae60" stroke-width="0.5"/>
+        <ellipse cx="420" cy="330" rx="12" ry="7" fill="#1a5a32" stroke="#27ae60" stroke-width="0.5"/>
+        <ellipse cx="460" cy="310" rx="12" ry="7" fill="#1a5a32" stroke="#27ae60" stroke-width="0.5"/>
+      </g>
+
+      <!-- ═══════════════════════════════════
+           CAPA 1 — NODO IoT (Heltec LoRa32)
+      ═══════════════════════════════════ -->
+      <!-- poste -->
+      <rect x="178" y="240" width="6" height="80" fill="#4a5568" rx="1"/>
+      <!-- caja sensor -->
+      <polygon points="172,230 192,220 204,230 184,240" fill="#3a5a4a"/>
+      <polygon points="172,230 172,248 184,258 184,240" fill="#2a4a3a"/>
+      <polygon points="192,220 204,230 204,248 192,258 184,258 184,240" fill="#4a6a5a"/>
+      <!-- LEDs -->
+      <circle cx="194" cy="228" r="2.5" fill="#2ecc71" filter="url(#glow)" opacity="0.9"/>
+      <circle cx="200" cy="232" r="2" fill="#3498db" filter="url(#glow)" opacity="0.8"/>
+      <!-- antena -->
+      <line x1="184" y1="220" x2="184" y2="200" stroke="#95a5a6" stroke-width="1.5"/>
+      <circle cx="184" cy="198" r="3" fill="none" stroke="#2ecc71" stroke-width="1" opacity="0.6"/>
+      <!-- panel solar -->
+      <polygon points="195,210 215,200 222,208 202,218" fill="#1a3a5c" stroke="#3498db" stroke-width="0.8"/>
+      <line x1="207" y1="202" x2="210" y2="215" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+      <!-- etiqueta -->
+      <text x="145" y="275" fill="#2ecc71" font-family="Space Mono" font-size="7.5" text-anchor="middle">NODO IoT</text>
+      <text x="145" y="285" fill="#95a5a6" font-family="Space Mono" font-size="6" text-anchor="middle">Heltec LoRa32 V3</text>
+      <text x="145" y="293" fill="#95a5a6" font-family="Space Mono" font-size="6" text-anchor="middle">915 MHz · LoRaWAN</text>
+
+      <!-- ═══════════════════════════════════
+           ONDAS LORA (animadas)
+      ═══════════════════════════════════ -->
+      <g opacity="0.5">
+        <circle cx="184" cy="198" r="12" fill="none" stroke="#2ecc71" stroke-width="0.8" stroke-dasharray="3 3">
+          <animate attributeName="r" from="10" to="30" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="0.7" to="0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="184" cy="198" r="22" fill="none" stroke="#2ecc71" stroke-width="0.6" stroke-dasharray="2 4">
+          <animate attributeName="r" from="20" to="50" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" from="0.5" to="0" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+
+      <!-- ═══════════════════════════════════
+           CAPA 2 — GATEWAY (RPi + LoRa HAT)
+      ═══════════════════════════════════ -->
+      <!-- torre gateway -->
+      <rect x="290" y="175" width="8" height="95" fill="#4a5568" rx="1"/>
+      <!-- caja gateway -->
+      <polygon points="280,160 306,148 318,160 292,172" fill="#2c3e50"/>
+      <polygon points="280,160 280,178 292,190 292,172" fill="#1a252f"/>
+      <polygon points="306,148 318,160 318,178 306,190 292,190 292,172" fill="#34495e"/>
+      <!-- antena grande -->
+      <line x1="292" y1="148" x2="292" y2="118" stroke="#7f8c8d" stroke-width="2"/>
+      <circle cx="292" cy="115" r="5" fill="none" stroke="#f39c12" stroke-width="1.5" filter="url(#glow)"/>
+      <!-- LED estado -->
+      <circle cx="314" cy="162" r="3" fill="#2ecc71" filter="url(#glow)">
+        <animate attributeName="opacity" from="1" to="0.3" dur="1.5s" repeatCount="indefinite" values="1;0.3;1"/>
+      </circle>
+      <!-- etiqueta -->
+      <text x="340" y="155" fill="#f39c12" font-family="Space Mono" font-size="7.5">GATEWAY</text>
+      <text x="340" y="165" fill="#95a5a6" font-family="Space Mono" font-size="6">RPi 4 + RAK2287</text>
+      <text x="340" y="173" fill="#95a5a6" font-family="Space Mono" font-size="6">8 canales · 915 MHz</text>
+
+      <!-- LoRa beam Nodo → Gateway -->
+      <line x1="184" y1="200" x2="292" y2="132" stroke="#2ecc71" stroke-width="1" stroke-dasharray="4 3" opacity="0.5">
+        <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="1s" repeatCount="indefinite"/>
+      </line>
+
+      <!-- ═══════════════════════════════════
+           CAPA 3 — TTN (NUBE)
+      ═══════════════════════════════════ -->
+      <!-- nube TTN -->
+      <g transform="translate(440, 80)">
+        <ellipse cx="0" cy="20" rx="45" ry="20" fill="#1a2a4a" stroke="#3498db" stroke-width="1" opacity="0.9"/>
+        <ellipse cx="-15" cy="14" rx="30" ry="16" fill="#1a2a4a" stroke="#3498db" stroke-width="0.8" opacity="0.9"/>
+        <ellipse cx="15" cy="12" rx="32" ry="16" fill="#1a2a4a" stroke="#3498db" stroke-width="0.8" opacity="0.9"/>
+        <text x="0" y="6" fill="#3498db" font-family="Space Mono" font-size="8" text-anchor="middle" font-weight="bold">TTN</text>
+        <text x="0" y="17" fill="#95a5a6" font-family="Space Mono" font-size="5.5" text-anchor="middle">The Things Network</text>
+        <text x="0" y="26" fill="#95a5a6" font-family="Space Mono" font-size="5" text-anchor="middle">LoRaWAN Server · Free</text>
+      </g>
+
+      <!-- Gateway → TTN -->
+      <line x1="292" y1="118" x2="430" y2="95" stroke="#3498db" stroke-width="1" stroke-dasharray="5 3" opacity="0.6">
+        <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.8s" repeatCount="indefinite"/>
+      </line>
+      <text x="355" y="100" fill="#3498db" font-family="Space Mono" font-size="6" opacity="0.8">MQTT</text>
+
+      <!-- ═══════════════════════════════════
+           CAPA 4 — SERVIDOR i7 (backend)
+      ═══════════════════════════════════ -->
+      <!-- servidor bloque isométrico -->
+      <g transform="translate(490, 260)">
+        <!-- top -->
+        <polygon points="0,-40 60,-20 60,0 0,20 -60,0 -60,-20" fill="#1a2a3a" stroke="#3498db" stroke-width="1"/>
+        <!-- right face -->
+        <polygon points="60,-20 60,40 0,60 0,20" fill="#0f1c2a" stroke="#2a4a6a" stroke-width="0.8"/>
+        <!-- left face -->
+        <polygon points="-60,-20 0,20 0,60 -60,40" fill="#0a1520" stroke="#1a3a5a" stroke-width="0.8"/>
+        <!-- LED strip top -->
+        <line x1="-40" y1="-18" x2="40" y2="-2" stroke="#3498db" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.7"/>
+        <line x1="-40" y1="-14" x2="40" y2="2" stroke="#2ecc71" stroke-width="1" stroke-dasharray="2 5" opacity="0.5"/>
+        <!-- label top -->
+        <text x="0" y="-22" fill="#3498db" font-family="Space Mono" font-size="7" text-anchor="middle">SERVER i7</text>
+        <text x="0" y="-13" fill="#95a5a6" font-family="Space Mono" font-size="5.5" text-anchor="middle">FastAPI · Docker</text>
+        <!-- ventiladores right -->
+        <circle cx="40" cy="8" r="7" fill="none" stroke="#3498db" stroke-width="0.8" opacity="0.5"/>
+        <circle cx="40" cy="8" r="3" fill="#3498db" opacity="0.3"/>
+        <circle cx="40" cy="28" r="7" fill="none" stroke="#3498db" stroke-width="0.8" opacity="0.5"/>
+        <!-- labels right -->
+        <text x="30" y="48" fill="#2ecc71" font-family="Space Mono" font-size="5.5">InfluxDB</text>
+        <text x="30" y="56" fill="#f39c12" font-family="Space Mono" font-size="5.5">PostgreSQL</text>
+      </g>
+
+      <!-- TTN → Server (webhook) -->
+      <line x1="480" y1="100" x2="495" y2="228" stroke="#f39c12" stroke-width="1.2" stroke-dasharray="5 3" opacity="0.6">
+        <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.7s" repeatCount="indefinite"/>
+      </line>
+      <text x="500" y="165" fill="#f39c12" font-family="Space Mono" font-size="6" opacity="0.8">Webhook HTTP</text>
+
+      <!-- ═══════════════════════════════════
+           CAPA 5 — SATÉLITE (Sentinel-2)
+      ═══════════════════════════════════ -->
+      <g transform="translate(130, 60)">
+        <!-- cuerpo satélite -->
+        <rect x="-18" y="-12" width="36" height="24" fill="#2c3e50" stroke="#95a5a6" stroke-width="1" rx="2"/>
+        <!-- panel solar izq -->
+        <rect x="-58" y="-8" width="36" height="16" fill="#1a3a5c" stroke="#3498db" stroke-width="1"/>
+        <line x1="-54" y1="-8" x2="-54" y2="8" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+        <line x1="-44" y1="-8" x2="-44" y2="8" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+        <line x1="-34" y1="-8" x2="-34" y2="8" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+        <!-- panel solar der -->
+        <rect x="22" y="-8" width="36" height="16" fill="#1a3a5c" stroke="#3498db" stroke-width="1"/>
+        <line x1="26" y1="-8" x2="26" y2="8" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+        <line x1="36" y1="-8" x2="36" y2="8" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+        <line x1="46" y1="-8" x2="46" y2="8" stroke="#3498db" stroke-width="0.5" opacity="0.5"/>
+        <!-- sensor óptico -->
+        <rect x="-8" y="8" width="16" height="8" fill="#1a4a6a" stroke="#3498db" stroke-width="0.8"/>
+        <circle cx="0" cy="12" r="4" fill="#0a2a4a" stroke="#3498db" stroke-width="0.8"/>
+        <!-- LEDs satélite -->
+        <circle cx="10" cy="-6" r="2" fill="#f39c12" filter="url(#glow)"/>
+        <circle cx="-10" cy="4" r="1.5" fill="#2ecc71" filter="url(#glow)"/>
+        <!-- label -->
+        <text x="0" y="-18" fill="#ecf0f1" font-family="Space Mono" font-size="7.5" text-anchor="middle">SENTINEL-2</text>
+        <text x="0" y="-27" fill="#95a5a6" font-family="Space Mono" font-size="5.5" text-anchor="middle">ESA · 10m · cada 5 días</text>
+        <animate attributeName="transform" type="translate" from="130,60" to="130,54" dur="4s" repeatCount="indefinite" additive="replace">
+          <animate attributeName="transform" values="translate(130,60);translate(130,54);translate(130,60)" dur="4s" repeatCount="indefinite"/>
+        </animate>
+      </g>
+
+      <!-- Sentinel → GEE beam (haz de escaneo al campo) -->
+      <line x1="130" y1="72" x2="300" y2="290" stroke="#3498db" stroke-width="1" stroke-dasharray="6 4" opacity="0.3">
+        <animate attributeName="opacity" from="0.1" to="0.5" dur="3s" repeatCount="indefinite"/>
+      </line>
+      <line x1="130" y1="72" x2="340" y2="310" stroke="#3498db" stroke-width="1" stroke-dasharray="6 4" opacity="0.2">
+        <animate attributeName="opacity" from="0.05" to="0.35" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+      </line>
+
+      <!-- ═══════════════════════════════════
+           GEE API → servidor (Sesión 3)
+      ═══════════════════════════════════ -->
+      <text x="240" y="120" fill="#2ecc71" font-family="Space Mono" font-size="6.5" opacity="0.9">GEE Python API</text>
+      <line x1="240" y1="124" x2="440" y2="248" stroke="#2ecc71" stroke-width="1" stroke-dasharray="4 3" opacity="0.4">
+        <animate attributeName="stroke-dashoffset" from="0" to="-14" dur="1.2s" repeatCount="indefinite"/>
+      </line>
+
+      <!-- ═══════════════════════════════════
+           CAPA 6 — MOTOR IA + PRESCRIPTIVO
+      ═══════════════════════════════════ -->
+      <g transform="translate(490, 390)">
+        <!-- bloque IA -->
+        <polygon points="0,-25 50,-10 50,10 0,25 -50,10 -50,-10" fill="#1a0a2a" stroke="#9b59b6" stroke-width="1"/>
+        <polygon points="50,-10 50,30 0,45 0,25" fill="#0f0520" stroke="#6c3483" stroke-width="0.8"/>
+        <polygon points="-50,-10 0,25 0,45 -50,30" fill="#08030f" stroke="#4a235a" stroke-width="0.8"/>
+        <text x="0" y="-10" fill="#9b59b6" font-family="Space Mono" font-size="7" text-anchor="middle">MOTOR IA</text>
+        <text x="0" y="0" fill="#95a5a6" font-family="Space Mono" font-size="5.5" text-anchor="middle">XGBoost · LSTM</text>
+        <text x="0" y="8" fill="#95a5a6" font-family="Space Mono" font-size="5.5" text-anchor="middle">Prescriptivo</text>
+        <!-- conexión servidor → IA -->
+      </g>
+      <line x1="490" y1="305" x2="490" y2="365" stroke="#9b59b6" stroke-width="1.2" stroke-dasharray="3 2" opacity="0.6">
+        <animate attributeName="stroke-dashoffset" from="0" to="-10" dur="0.5s" repeatCount="indefinite"/>
+      </line>
+
+      <!-- ═══════════════════════════════════
+           OUTPUT — TELEGRAM / GRAFANA
+      ═══════════════════════════════════ -->
+      <!-- Telegram -->
+      <g transform="translate(565, 480)">
+        <rect x="-28" y="-16" width="56" height="32" rx="4" fill="#1a2a4a" stroke="#3498db" stroke-width="1"/>
+        <text x="0" y="-3" fill="#3498db" font-family="Space Mono" font-size="7" text-anchor="middle">📱 TELEGRAM</text>
+        <text x="0" y="7" fill="#95a5a6" font-family="Space Mono" font-size="5.5" text-anchor="middle">Alertas Bot</text>
+        <text x="0" y="15" fill="#2ecc71" font-family="Space Mono" font-size="5" text-anchor="middle">gratis · celular</text>
+      </g>
+      <!-- Grafana -->
+      <g transform="translate(410, 490)">
+        <rect x="-30" y="-16" width="60" height="32" rx="4" fill="#1a1a2a" stroke="#f39c12" stroke-width="1"/>
+        <text x="0" y="-3" fill="#f39c12" font-family="Space Mono" font-size="7" text-anchor="middle">📊 GRAFANA</text>
+        <text x="0" y="7" fill="#95a5a6" font-family="Space Mono" font-size="5.5" text-anchor="middle">Dashboard</text>
+        <text x="0" y="15" fill="#2ecc71" font-family="Space Mono" font-size="5" text-anchor="middle">local · día 1</text>
+      </g>
+      <!-- IA → outputs -->
+      <line x1="510" y1="415" x2="540" y2="464" stroke="#e74c3c" stroke-width="1" opacity="0.5"/>
+      <line x1="470" y1="415" x2="420" y2="474" stroke="#f39c12" stroke-width="1" opacity="0.5"/>
+      <text x="474" y="445" fill="#e74c3c" font-family="Space Mono" font-size="6" opacity="0.8">ALERTA</text>
+
+      <!-- ═══════════════════════════════════
+           LEYENDA DE CAPAS
+      ═══════════════════════════════════ -->
+      <g transform="translate(20, 530)">
+        <rect x="0" y="0" width="400" height="60" fill="rgba(10,15,13,0.8)" stroke="rgba(46,204,113,0.2)" stroke-width="0.5"/>
+        <!-- capas -->
+        <g font-family="Space Mono" font-size="6.5">
+          <circle cx="16" cy="14" r="4" fill="#2ecc71" opacity="0.8"/>
+          <text x="25" y="18" fill="#95a5a6">C1 Observación Satélite (Sentinel-2)</text>
+
+          <circle cx="16" cy="28" r="4" fill="#f39c12" opacity="0.8"/>
+          <text x="25" y="32" fill="#95a5a6">C2 Sensores IoT (Heltec LoRa32)</text>
+
+          <circle cx="16" cy="42" r="4" fill="#3498db" opacity="0.8"/>
+          <text x="25" y="46" fill="#95a5a6">C3 Ingesta (TTN → FastAPI → InfluxDB)</text>
+
+          <circle cx="210" cy="14" r="4" fill="#9b59b6" opacity="0.8"/>
+          <text x="219" y="18" fill="#95a5a6">C4 Motor IA (XGBoost · LSTM)</text>
+
+          <circle cx="210" cy="28" r="4" fill="#e74c3c" opacity="0.8"/>
+          <text x="219" y="32" fill="#95a5a6">C5 Prescriptivo (Alertas · Riego)</text>
+
+          <circle cx="210" cy="42" r="4" fill="#ecf0f1" opacity="0.8"/>
+          <text x="219" y="46" fill="#95a5a6">C6 Interfaz (Grafana · Telegram)</text>
+        </g>
+      </g>
+
+    </svg>
+
+    <!-- Stats row debajo del SVG -->
+    <div style="display:flex;gap:16px;flex-wrap:wrap;width:100%;max-width:700px;">
+      <div style="flex:1;background:var(--panel);border:1px solid var(--borde);padding:14px 18px;">
+        <div style="font-size:0.58rem;letter-spacing:2px;color:var(--gris);margin-bottom:6px;">COBERTURA</div>
+        <div style="font-size:1.3rem;font-family:'Syne',sans-serif;font-weight:800;color:var(--verde);">30 ha</div>
+        <div style="font-size:0.6rem;color:var(--gris);">Agave + Maíz · El Diamante</div>
+      </div>
+      <div style="flex:1;background:var(--panel);border:1px solid var(--borde);padding:14px 18px;">
+        <div style="font-size:0.58rem;letter-spacing:2px;color:var(--gris);margin-bottom:6px;">RESOLUCIÓN SAT.</div>
+        <div style="font-size:1.3rem;font-family:'Syne',sans-serif;font-weight:800;color:var(--azul);">10 m</div>
+        <div style="font-size:0.6rem;color:var(--gris);">Sentinel-2 · cada 5 días</div>
+      </div>
+      <div style="flex:1;background:var(--panel);border:1px solid var(--borde);padding:14px 18px;">
+        <div style="font-size:0.58rem;letter-spacing:2px;color:var(--gris);margin-bottom:6px;">LATENCIA ALERTA</div>
+        <div style="font-size:1.3rem;font-family:'Syne',sans-serif;font-weight:800;color:var(--naranja);">&lt;60s</div>
+        <div style="font-size:0.6rem;color:var(--gris);">IoT → Telegram Bot</div>
+      </div>
+      <div style="flex:1;background:var(--panel);border:1px solid var(--borde);padding:14px 18px;">
+        <div style="font-size:0.58rem;letter-spacing:2px;color:var(--gris);margin-bottom:6px;">COSTO MVP</div>
+        <div style="font-size:1.3rem;font-family:'Syne',sans-serif;font-weight:800;color:var(--verde);">$3,100</div>
+        <div style="font-size:0.6rem;color:var(--gris);">MXN · 1 nodo + gateway</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SIDEBAR SPECS ── -->
+  <div class="sidebar">
+
+    <!-- Hardware -->
+    <div class="section-header">Hardware</div>
+    <div class="spec-block">
+      <div class="spec-label">Nodo Sensor</div>
+      <div class="spec-row"><span class="spec-key">Placa</span><span class="spec-val green">Heltec WiFi LoRa32 V3</span></div>
+      <div class="spec-row"><span class="spec-key">MCU</span><span class="spec-val">ESP32-S3 · 240 MHz</span></div>
+      <div class="spec-row"><span class="spec-key">LoRa chip</span><span class="spec-val">SX1262 · 915 MHz MX</span></div>
+      <div class="spec-row"><span class="spec-key">Display</span><span class="spec-val">OLED 0.96" integrado</span></div>
+      <div class="spec-row"><span class="spec-key">Batería</span><span class="spec-val">18650 LiPo · carga solar</span></div>
+      <div class="spec-row"><span class="spec-key">Autonomía</span><span class="spec-val green">5–7 días sin sol</span></div>
+      <div class="spec-row"><span class="spec-key">Precio</span><span class="spec-val orange">~$550 MXN</span></div>
+    </div>
+    <div class="spec-block">
+      <div class="spec-label">Sensores por Nodo</div>
+      <div class="spec-row"><span class="spec-key">GPIO36 (ADC)</span><span class="spec-val">Humedad suelo cap. v2.0</span></div>
+      <div class="spec-row"><span class="spec-key">GPIO17</span><span class="spec-val">DHT22 temp+hum aire</span></div>
+      <div class="spec-row"><span class="spec-key">GPIO4</span><span class="spec-val">DS18B20 temp suelo</span></div>
+      <div class="spec-row"><span class="spec-key">GPIO34 (ADC)</span><span class="spec-val">Sensor lluvia FC-37</span></div>
+      <div class="spec-row"><span class="spec-key">Frecuencia</span><span class="spec-val green">Cada 30 min</span></div>
+    </div>
+    <div class="spec-block">
+      <div class="spec-label">Gateway LoRaWAN (barato)</div>
+      <div class="spec-row"><span class="spec-key">Hardware</span><span class="spec-val">RPi 4 + RAK2287 HAT</span></div>
+      <div class="spec-row"><span class="spec-key">Canales</span><span class="spec-val">8 canales simultáneos</span></div>
+      <div class="spec-row"><span class="spec-key">Alcance</span><span class="spec-val green">2–5 km campo abierto</span></div>
+      <div class="spec-row"><span class="spec-key">Servidor LoRa</span><span class="spec-val">The Things Network</span></div>
+      <div class="spec-row"><span class="spec-key">Precio total</span><span class="spec-val orange">~$2,000 MXN</span></div>
+      <div style="margin-top:8px;font-size:0.6rem;color:var(--gris);">
+        Alt. ultra-barata: <span style="color:var(--naranja);">Heltec HT-M01</span> ~$800 MXN (1 canal, solo MVP pruebas)
+      </div>
+    </div>
+
+    <!-- Software Stack -->
+    <div class="section-header">Software Stack</div>
+    <div class="spec-block">
+      <div class="spec-label">Backend</div>
+      <div style="margin-bottom:8px;">
+        <span class="pill pill-g">Python 3.11</span>
+        <span class="pill pill-g">FastAPI 0.111</span>
+        <span class="pill pill-g">Pydantic v2</span>
+      </div>
+      <div style="margin-bottom:0;">
+        <span class="pill pill-b">InfluxDB 2.7</span>
+        <span class="pill pill-b">PostgreSQL 15</span>
+        <span class="pill pill-o">Grafana 10</span>
+        <span class="pill pill-o">Docker Compose</span>
+      </div>
+    </div>
+    <div class="spec-block">
+      <div class="spec-label">Servicios Externos (todos gratuitos)</div>
+      <div class="spec-row"><span class="spec-key">Imágenes sat.</span><span class="spec-val green">Google Earth Engine ✅</span></div>
+      <div class="spec-row"><span class="spec-key">LoRaWAN server</span><span class="spec-val blue">The Things Network</span></div>
+      <div class="spec-row"><span class="spec-key">Alertas</span><span class="spec-val blue">Telegram Bot API</span></div>
+      <div class="spec-row"><span class="spec-key">Deploy futuro</span><span class="spec-val">Railway.app</span></div>
+    </div>
+    <div class="spec-block">
+      <div class="spec-label">Firmware Nodo</div>
+      <div style="margin-bottom:0;">
+        <span class="pill pill-g">Arduino IDE 2.x</span>
+        <span class="pill pill-g">LMIC LoRaWAN</span>
+        <span class="pill pill-o">Cayenne LPP</span>
+        <span class="pill pill-b">U8g2 OLED</span>
+        <span class="pill pill-b">DallasTemperature</span>
+      </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="section-header">Pipeline de Datos</div>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-num">1</div>
+        <div class="pipe-content">
+          <div class="pipe-title">Nodo IoT lee sensores</div>
+          <div class="pipe-sub">Cada 30 min · deep sleep entre lecturas</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">2</div>
+        <div class="pipe-content">
+          <div class="pipe-title">LoRa → RPi Gateway</div>
+          <div class="pipe-sub">915 MHz · alcance 2–5 km campo</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">3</div>
+        <div class="pipe-content">
+          <div class="pipe-title">Gateway → TTN → FastAPI</div>
+          <div class="pipe-sub">Webhook HTTP · validación Pydantic</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">4</div>
+        <div class="pipe-content">
+          <div class="pipe-title">Sentinel-2 job (cada 5 días)</div>
+          <div class="pipe-sub">GEE API → NDVI/NDRE/NDWI → InfluxDB</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">5</div>
+        <div class="pipe-content">
+          <div class="pipe-title">Motor Prescriptivo</div>
+          <div class="pipe-sub">Cruce IoT + Satélite → reglas → alerta</div>
+        </div>
+      </div>
+      <div class="pipe-step" style="margin-bottom:0;">
+        <div class="pipe-num">6</div>
+        <div class="pipe-content">
+          <div class="pipe-title">Output: Telegram + Grafana</div>
+          <div class="pipe-sub">&lt;60s latencia · dashboard histórico</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alerta ejemplo -->
+    <div class="section-header">Ejemplo de Alerta Real</div>
+    <div class="alert-preview">
+      <div class="al-head">🚨 AGROSENSE — El Diamante</div>
+      <div>Zona: <span style="color:var(--blanco)">Parcela Norte (soil_01)</span></div>
+      <div>Tipo: <span style="color:var(--rojo)">Estrés hídrico confirmado</span></div>
+      <div>NDVI: <span style="color:var(--rojo)">0.41</span> (hist: 0.58, -29%)</div>
+      <div>Humedad suelo: <span style="color:var(--rojo)">16.2%</span> (umbral 25%)</div>
+      <div>Temp suelo: <span style="color:var(--naranja)">28.4°C</span></div>
+      <div style="margin-top:6px;">Acción: <span class="al-green">Riego en 24h · 14mm</span></div>
+      <div>Urgencia: <span style="color:var(--rojo);font-weight:700">ALTA</span></div>
+    </div>
+
+    <!-- Fases -->
+    <div class="section-header">Plan de Ejecución</div>
+    <div class="timeline">
+      <div class="phase">
+        <div class="phase-week">Sem 1</div>
+        <div class="phase-body">
+          <div class="phase-name">El Cerebro (solo software)</div>
+          <div class="phase-goal">Docker + InfluxDB + PostgreSQL + Grafana. Job satelital GEE corriendo. Primer NDVI de tus 30 ha en pantalla.</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-week">Sem 2</div>
+        <div class="phase-body">
+          <div class="phase-name">Nodo físico Heltec</div>
+          <div class="phase-goal">Comprar Heltec, conectar sensores en casa, cargar firmware, ver OLED con lecturas.</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-week">Sem 3</div>
+        <div class="phase-body">
+          <div class="phase-name">Gateway en rancho</div>
+          <div class="phase-goal">RPi + RAK2287 en techo de casa. Nodo Heltec enviando datos a TTN. InfluxDB recibiendo.</div>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="phase-week">Sem 4</div>
+        <div class="phase-body">
+          <div class="phase-name">🎯 La Magia: Integración</div>
+          <div class="phase-goal">Primera alerta real: satélite + sensor → Telegram. Documentar para SADER.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOM compacta -->
+    <div class="section-header">Lista de Materiales</div>
+    <div style="padding:16px 24px;">
+      <table class="bom-table">
+        <thead>
+          <tr>
+            <th>Componente</th>
+            <th>Fuente</th>
+            <th>MXN</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Heltec WiFi LoRa32 V3</td><td>MeLi/AliEx</td><td>$550</td></tr>
+          <tr><td>DHT22</td><td>El. Patria GDL</td><td>$80</td></tr>
+          <tr><td>DS18B20 + R 4.7kΩ</td><td>El. Patria GDL</td><td>$70</td></tr>
+          <tr><td>Sensor lluvia FC-37</td><td>MercadoLibre</td><td>$40</td></tr>
+          <tr><td>Batería 18650 3000mAh</td><td>MercadoLibre</td><td>$80</td></tr>
+          <tr><td>Módulo TP4056 solar</td><td>MercadoLibre</td><td>$30</td></tr>
+          <tr><td>Panel solar 5W</td><td>MercadoLibre</td><td>$120</td></tr>
+          <tr><td>Caja IP65</td><td>Home Depot</td><td>$120</td></tr>
+          <tr><td>Cables + protoboard</td><td>El. Patria</td><td>$70</td></tr>
+          <tr style="font-weight:700;"><td>RPi 4 + RAK2287 HAT</td><td>RAKwireless</td><td>$2,000</td></tr>
+          <tr style="border-top:1px solid var(--verde3);"><td style="color:var(--verde);font-weight:700;">TOTAL MVP</td><td></td><td style="color:var(--verde);font-weight:700;">~$3,160</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /sidebar -->
+
+</div><!-- /main-grid -->
+
+<div class="bottom-bar">
+  <div class="stat"><span>Proyecto:</span><span class="stat-val">AgroSense MVP v1.0</span></div>
+  <div class="stat"><span>Rancho:</span><span class="stat-val">El Diamante · Tonalá, JAL</span></div>
+  <div class="stat"><span>Cultivos:</span><span class="stat-val">Agave + Maíz · 30 ha</span></div>
+  <div class="stat"><span>Alineación:</span><span class="stat-val">SADER JAL II.I + II.II</span></div>
+  <div class="stat"><span>Arquitectura:</span><span class="stat-val">Satélite → IoT → IA → Prescriptivo</span></div>
+  <div class="stat"><span>Maestría:</span><span class="stat-val">Ciencia de Datos · 2025</span></div>
+</div>
+
+</body>
+</html>
