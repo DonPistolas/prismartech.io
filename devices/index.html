@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgroSense — Especificaciones IoT Nodo de Campo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap');
+
+:root {
+  --bg: #0C1410;
+  --bg2: #111A14;
+  --bg3: #162019;
+  --verde: #4ADE80;
+  --verde2: #22C55E;
+  --verde3: #166534;
+  --azul: #60A5FA;
+  --naranj: #FB923C;
+  --amarillo: #FDE047;
+  --rojo: #F87171;
+  --morado: #C084FC;
+  --gris: #6B7280;
+  --texto: #E5E7EB;
+  --borde: rgba(74,222,128,0.15);
+  --borde2: rgba(74,222,128,0.3);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--texto); font-family:'Outfit',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+/* ─── HEADER ─── */
+.hdr {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 36px;
+  background:var(--bg2);
+  border-bottom:1px solid var(--borde2);
+}
+.hdr-logo { font-family:'Outfit',sans-serif; font-weight:800; font-size:1.4rem; color:var(--verde); }
+.hdr-logo span { color:var(--texto); font-weight:300; }
+.hdr-sub { font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--gris); margin-top:2px; }
+.badge { border:1px solid var(--borde2); color:var(--verde); font-size:0.62rem; letter-spacing:2px; padding:5px 14px; }
+
+/* ─── LAYOUT ─── */
+.layout {
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:0;
+  min-height:calc(100vh - 65px);
+}
+
+/* ─── PANEL ISO ─── */
+.iso-panel {
+  padding:28px 32px;
+  display:flex; flex-direction:column; gap:20px;
+  border-right:1px solid var(--borde);
+}
+.section-label {
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.62rem; letter-spacing:3px; color:var(--gris); text-transform:uppercase;
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  background:var(--bg2);
+  overflow-y:auto;
+}
+.sb-section { border-bottom:1px solid var(--borde); }
+.sb-hdr {
+  padding:14px 22px;
+  background:rgba(74,222,128,0.05);
+  border-bottom:1px solid var(--borde);
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem; font-weight:700; color:var(--verde);
+  letter-spacing:2px; text-transform:uppercase;
+  display:flex; align-items:center; gap:8px;
+}
+.sb-hdr::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--verde); display:block; flex-shrink:0; }
+
+.spec-row {
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:8px 22px;
+  border-bottom:1px solid rgba(74,222,128,0.06);
+  gap:8px;
+}
+.spec-key { font-size:0.65rem; color:var(--gris); flex-shrink:0; }
+.spec-val { font-size:0.65rem; text-align:right; }
+.sv-g { color:var(--verde); }
+.sv-b { color:var(--azul); }
+.sv-o { color:var(--naranj); }
+.sv-y { color:var(--amarillo); }
+.sv-r { color:var(--rojo); }
+
+.pill { display:inline-block; padding:2px 8px; font-size:0.56rem; letter-spacing:1px; border-radius:2px; margin:2px; }
+.pg { background:rgba(74,222,128,0.12); color:var(--verde); border:1px solid rgba(74,222,128,0.25); }
+.pb { background:rgba(96,165,250,0.12); color:var(--azul); border:1px solid rgba(96,165,250,0.25); }
+.po { background:rgba(251,146,60,0.12); color:var(--naranj); border:1px solid rgba(251,146,60,0.25); }
+
+/* ─── BOM TABLE ─── */
+.bom-wrap { padding:16px 22px; }
+table.bom { width:100%; border-collapse:collapse; font-size:0.62rem; }
+table.bom th { color:var(--verde); text-align:left; padding:6px 0; border-bottom:1px solid var(--borde2); letter-spacing:1px; font-size:0.58rem; text-transform:uppercase; }
+table.bom td { padding:7px 0; color:var(--gris); border-bottom:1px solid rgba(74,222,128,0.06); vertical-align:top; }
+table.bom td:first-child { color:var(--texto); }
+table.bom td:last-child { color:var(--verde); text-align:right; white-space:nowrap; }
+.bom-total td { color:var(--verde) !important; font-weight:700; border-top:1px solid var(--verde3) !important; }
+
+/* ─── PIPELINE ─── */
+.pipeline { padding:16px 22px; }
+.pipe-step { display:flex; align-items:flex-start; gap:12px; margin-bottom:12px; position:relative; }
+.pipe-step:not(:last-child)::after { content:''; position:absolute; left:9px; top:22px; bottom:-12px; width:1px; background:var(--borde2); }
+.pipe-num { width:18px; height:18px; border:1px solid var(--verde3); color:var(--verde); font-size:0.55rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:'JetBrains Mono',monospace; }
+.pipe-title { font-size:0.66rem; color:var(--texto); font-weight:600; margin-bottom:2px; }
+.pipe-sub { font-size:0.58rem; color:var(--gris); line-height:1.5; }
+
+/* ─── GATEWAY TABLE ─── */
+.gw-table { padding:0 22px 16px; }
+.gw-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(74,222,128,0.06); }
+.gw-name { font-size:0.64rem; color:var(--texto); }
+.gw-price { font-size:0.62rem; color:var(--naranj); font-weight:700; }
+.gw-note { font-size:0.58rem; color:var(--gris); }
+
+/* ─── STATS BOTTOM ─── */
+.stats-row {
+  display:flex; gap:12px; flex-wrap:wrap;
+}
+.stat-box {
+  flex:1; min-width:110px;
+  background:rgba(74,222,128,0.04);
+  border:1px solid var(--borde);
+  padding:12px 16px;
+}
+.stat-num { font-family:'JetBrains Mono',monospace; font-size:1.4rem; font-weight:700; color:var(--verde); }
+.stat-lbl { font-size:0.58rem; color:var(--gris); margin-top:2px; letter-spacing:1px; }
+
+/* ─── ANIMATION ─── */
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+@keyframes wave { 0%{r:8; opacity:0.8} 100%{r:35; opacity:0} }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div>
+    <div class="hdr-logo">Agro<span>Sense</span> IoT</div>
+    <div class="hdr-sub">NODO DE CAMPO — ESPECIFICACIONES TÉCNICAS v1.0</div>
+  </div>
+  <div class="badge">SOLO HARDWARE DE CAMPO</div>
+  <div style="text-align:right;font-size:0.62rem;color:var(--gris);line-height:1.7;">
+    <div>El Diamante · Tonalá, Jalisco</div>
+    <div>Heltec WiFi LoRa32 V3 · 915 MHz</div>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- ══ PANEL ISOMÉTRICO ══ -->
+<div class="iso-panel">
+  <div class="section-label">Vista Isométrica — Nodo Sensor de Campo (producto terminado)</div>
+
+  <svg viewBox="0 0 680 560" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px;">
+    <defs>
+      <!-- fondos -->
+      <linearGradient id="gBg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0a1810"/>
+        <stop offset="100%" stop-color="#060e08"/>
+      </linearGradient>
+      <!-- caja principal -->
+      <linearGradient id="gCajaTop" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#2A4A34"/>
+        <stop offset="100%" stop-color="#1E3526"/>
+      </linearGradient>
+      <linearGradient id="gCajaRight" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#162218"/>
+        <stop offset="100%" stop-color="#0E1810"/>
+      </linearGradient>
+      <linearGradient id="gCajaLeft" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1E3526"/>
+        <stop offset="100%" stop-color="#162218"/>
+      </linearGradient>
+      <!-- panel solar -->
+      <linearGradient id="gSolar" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#0D2040"/>
+        <stop offset="100%" stop-color="#091628"/>
+      </linearGradient>
+      <!-- placa PCB -->
+      <linearGradient id="gPCB" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#0D3B1F"/>
+        <stop offset="100%" stop-color="#082812"/>
+      </linearGradient>
+      <!-- glow -->
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="glow2">
+        <feGaussianBlur stdDeviation="6" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- fondo -->
+    <rect width="680" height="560" fill="url(#gBg)"/>
+
+    <!-- grid suelo sutil -->
+    <g opacity="0.15" stroke="#1A4A28" stroke-width="0.5">
+      <line x1="0" y1="400" x2="680" y2="400"/>
+      <line x1="0" y1="430" x2="680" y2="430"/>
+      <line x1="0" y1="460" x2="680" y2="460"/>
+      <line x1="200" y1="380" x2="200" y2="480"/>
+      <line x1="340" y1="380" x2="340" y2="480"/>
+      <line x1="480" y1="380" x2="480" y2="480"/>
+    </g>
+
+    <!-- ══════════════════════════════════════
+         POSTE (tubo galvanizado)
+    ══════════════════════════════════════ -->
+    <!-- sombra poste -->
+    <ellipse cx="340" cy="458" rx="18" ry="6" fill="rgba(0,0,0,0.4)"/>
+    <!-- poste principal -->
+    <rect x="332" y="200" width="16" height="258" rx="2" fill="#2A3A2E"/>
+    <rect x="334" y="200" width="4" height="258" rx="1" fill="#364A3A" opacity="0.6"/>
+    <!-- suelo / base -->
+    <ellipse cx="340" cy="456" rx="22" ry="8" fill="#1A2A1C"/>
+    <ellipse cx="340" cy="452" rx="16" ry="5" fill="#223222"/>
+
+    <!-- ══════════════════════════════════════
+         PANEL SOLAR (arriba del poste)
+    ══════════════════════════════════════ -->
+    <!-- soporte panel -->
+    <rect x="337" y="172" width="6" height="32" fill="#2A3A2E"/>
+    <line x1="340" y1="172" x2="310" y2="158" stroke="#2A3A2E" stroke-width="3"/>
+
+    <!-- panel solar isométrico -->
+    <g transform="rotate(-15, 310, 155)">
+      <!-- cara frontal panel -->
+      <rect x="268" y="136" width="84" height="54" rx="2" fill="url(#gSolar)" stroke="#1E3A6A" stroke-width="1"/>
+      <!-- celdas solares -->
+      <g stroke="#1A4080" stroke-width="0.5" opacity="0.7">
+        <line x1="282" y1="136" x2="282" y2="190"/><line x1="296" y1="136" x2="296" y2="190"/>
+        <line x1="310" y1="136" x2="310" y2="190"/><line x1="324" y1="136" x2="324" y2="190"/>
+        <line x1="338" y1="136" x2="338" y2="190"/>
+        <line x1="268" y1="154" x2="352" y2="154"/><line x1="268" y1="172" x2="352" y2="172"/>
+      </g>
+      <!-- reflejo solar -->
+      <polygon points="274,140 308,140 295,155 270,152" fill="rgba(96,165,250,0.08)"/>
+      <!-- label -->
+      <text x="310" y="168" fill="#60A5FA" font-family="JetBrains Mono" font-size="7" text-anchor="middle" opacity="0.8">5W · 6V</text>
+    </g>
+
+    <!-- ══════════════════════════════════════
+         CAJA HERMÉTICA IP65 (componente principal)
+    ══════════════════════════════════════ -->
+    <!-- cara TOP de la caja isométrica -->
+    <polygon points="220,148 340,100 460,148 340,196" fill="url(#gCajaTop)" stroke="#4ADE80" stroke-width="1.2"/>
+    <!-- cara RIGHT de la caja -->
+    <polygon points="460,148 460,270 340,318 340,196" fill="url(#gCajaRight)" stroke="#22C55E" stroke-width="0.8"/>
+    <!-- cara LEFT de la caja -->
+    <polygon points="220,148 340,196 340,318 220,270" fill="url(#gCajaLeft)" stroke="#1A5A28" stroke-width="0.8"/>
+
+    <!-- texto IP65 en cara right -->
+    <text transform="translate(380,240) rotate(30)" fill="#4ADE80" font-family="JetBrains Mono" font-size="8" opacity="0.7">IP65</text>
+
+    <!-- ── PLACA Heltec (visible en cara TOP) ── -->
+    <!-- PCB board -->
+    <polygon points="256,154 340,112 424,154 340,196" fill="url(#gPCB)" stroke="#22C55E" stroke-width="0.8"/>
+
+    <!-- Chip ESP32-S3 -->
+    <polygon points="310,142 340,128 370,142 340,156" fill="#1A3A28" stroke="#4ADE80" stroke-width="0.7"/>
+    <text x="340" y="144" fill="#4ADE80" font-family="JetBrains Mono" font-size="5.5" text-anchor="middle">ESP32-S3</text>
+
+    <!-- SX1262 LoRa chip -->
+    <polygon points="284,165 302,157 320,165 302,173" fill="#0D2A1C" stroke="#60A5FA" stroke-width="0.7"/>
+    <text x="302" y="167" fill="#60A5FA" font-family="JetBrains Mono" font-size="5" text-anchor="middle">SX1262</text>
+
+    <!-- OLED display -->
+    <polygon points="355,133 391,117 407,125 371,141" fill="#05111F" stroke="#60A5FA" stroke-width="1"/>
+    <!-- contenido OLED -->
+    <text x="381" y="127" fill="#4ADE80" font-family="JetBrains Mono" font-size="4.5" text-anchor="middle">NDVI:0.62</text>
+    <text x="381" y="133" fill="#FDE047" font-family="JetBrains Mono" font-size="4.5" text-anchor="middle">H:18.4%</text>
+    <text x="381" y="139" fill="#60A5FA" font-family="JetBrains Mono" font-size="4.5" text-anchor="middle">LoRa OK ✓</text>
+
+    <!-- LEDs status -->
+    <circle cx="270" cy="150" r="3.5" fill="#4ADE80" filter="url(#glow)">
+      <animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="280" cy="145" r="2.5" fill="#60A5FA" filter="url(#glow)">
+      <animate attributeName="opacity" values="0.8;0.1;0.8" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="290" cy="140" r="2.5" fill="#FDE047" filter="url(#glow)" opacity="0.8"/>
+
+    <!-- Antena LoRa (sale de la caja por arriba) -->
+    <line x1="430" y1="148" x2="466" y2="96" stroke="#94A3B8" stroke-width="2"/>
+    <circle cx="466" cy="94" r="4" fill="none" stroke="#4ADE80" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="476" y="92" fill="#4ADE80" font-family="JetBrains Mono" font-size="7">915MHz</text>
+
+    <!-- Ondas radio LoRa -->
+    <circle cx="466" cy="94" r="0" fill="none" stroke="#4ADE80" stroke-width="1">
+      <animate attributeName="r" from="6" to="30" dur="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" from="0.8" to="0" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="466" cy="94" r="0" fill="none" stroke="#4ADE80" stroke-width="0.7">
+      <animate attributeName="r" from="6" to="50" dur="2.5s" begin="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" from="0.6" to="0" dur="2.5s" begin="0.8s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- ══════════════════════════════════════
+         SENSORES (cables saliendo hacia abajo)
+    ══════════════════════════════════════ -->
+
+    <!-- Cable sensor humedad suelo -->
+    <path d="M 290 270 Q 260 310 240 370" stroke="#22C55E" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+    <!-- Sensor capacitivo -->
+    <g transform="translate(220, 370)">
+      <rect x="-8" y="0" width="40" height="60" rx="3" fill="#1A3A28" stroke="#4ADE80" stroke-width="1"/>
+      <!-- spikes del sensor -->
+      <rect x="4" y="56" width="4" height="20" fill="#2A5A38" rx="1"/>
+      <rect x="14" y="58" width="4" height="18" fill="#2A5A38" rx="1"/>
+      <rect x="24" y="56" width="4" height="20" fill="#2A5A38" rx="1"/>
+      <!-- pantalla sensor -->
+      <rect x="-2" y="8" width="36" height="20" rx="1" fill="#05110A"/>
+      <text x="16" y="17" fill="#4ADE80" font-family="JetBrains Mono" font-size="5" text-anchor="middle">HUM</text>
+      <text x="16" y="25" fill="#4ADE80" font-family="JetBrains Mono" font-size="6" text-anchor="middle" font-weight="bold">18.4%</text>
+      <!-- label -->
+      <text x="12" y="88" fill="#4ADE80" font-family="JetBrains Mono" font-size="6.5" text-anchor="middle">Humedad</text>
+      <text x="12" y="97" fill="#6B7280" font-family="JetBrains Mono" font-size="5.5" text-anchor="middle">Suelo Cap. v2.0</text>
+      <text x="12" y="105" fill="#6B7280" font-family="JetBrains Mono" font-size="5.5" text-anchor="middle">GPIO36 · ADC</text>
+    </g>
+
+    <!-- Cable DHT22 -->
+    <path d="M 340 318 Q 340 340 340 370" stroke="#60A5FA" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+    <!-- DHT22 -->
+    <g transform="translate(316, 370)">
+      <rect x="0" y="0" width="48" height="42" rx="3" fill="#1A2A3A" stroke="#60A5FA" stroke-width="1"/>
+      <rect x="8" y="40" width="6" height="14" fill="#1A2A3A" rx="1"/>
+      <rect x="20" y="40" width="6" height="16" fill="#1A2A3A" rx="1"/>
+      <rect x="34" y="40" width="6" height="14" fill="#1A2A3A" rx="1"/>
+      <text x="24" y="16" fill="#60A5FA" font-family="JetBrains Mono" font-size="7" text-anchor="middle">DHT22</text>
+      <text x="24" y="28" fill="#60A5FA" font-family="JetBrains Mono" font-size="5.5" text-anchor="middle">28.3°C · 61%</text>
+      <text x="24" y="66" fill="#60A5FA" font-family="JetBrains Mono" font-size="6.5" text-anchor="middle">Temp+Hum Aire</text>
+      <text x="24" y="75" fill="#6B7280" font-family="JetBrains Mono" font-size="5.5" text-anchor="middle">GPIO17</text>
+    </g>
+
+    <!-- Cable DS18B20 -->
+    <path d="M 390 280 Q 430 330 460 370" stroke="#FB923C" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+    <!-- DS18B20 -->
+    <g transform="translate(448, 368)">
+      <!-- tubo del sensor -->
+      <rect x="-4" y="0" width="24" height="50" rx="8" fill="#1A1A0A" stroke="#FB923C" stroke-width="1"/>
+      <!-- cable top -->
+      <line x1="8" y1="0" x2="8" y2="-10" stroke="#FB923C" stroke-width="2"/>
+      <text x="8" y="12" fill="#FB923C" font-family="JetBrains Mono" font-size="6" text-anchor="middle">DS</text>
+      <text x="8" y="20" fill="#FB923C" font-family="JetBrains Mono" font-size="5" text-anchor="middle">18B20</text>
+      <text x="8" y="32" fill="#FB923C" font-family="JetBrains Mono" font-size="6" text-anchor="middle" font-weight="bold">22.1°</text>
+      <text x="8" y="66" fill="#FB923C" font-family="JetBrains Mono" font-size="6.5" text-anchor="middle">Temp Suelo</text>
+      <text x="8" y="75" fill="#6B7280" font-family="JetBrains Mono" font-size="5.5" text-anchor="middle">GPIO4 · 1-Wire</text>
+    </g>
+
+    <!-- ══════════════════════════════════════
+         BATERÍA + MÓDULO TP4056
+    ══════════════════════════════════════ -->
+    <!-- En cara right de la caja -->
+    <g>
+      <!-- batería 18650 -->
+      <polygon points="400,200 460,172 460,230 400,258" fill="#0D1A20" stroke="#60A5FA" stroke-width="0.8"/>
+      <text transform="translate(430,218) rotate(30)" fill="#60A5FA" font-family="JetBrains Mono" font-size="6.5" text-anchor="middle">18650</text>
+      <text transform="translate(430,228) rotate(30)" fill="#6B7280" font-family="JetBrains Mono" font-size="5.5" text-anchor="middle">3000mAh</text>
+      <!-- TP4056 -->
+      <polygon points="400,258 440,240 440,266 400,284" fill="#120820" stroke="#C084FC" stroke-width="0.8"/>
+      <text transform="translate(420,264) rotate(28)" fill="#C084FC" font-family="JetBrains Mono" font-size="5.5" text-anchor="middle">TP4056</text>
+    </g>
+
+    <!-- ══════════════════════════════════════
+         ETIQUETAS CALLOUT
+    ══════════════════════════════════════ -->
+    <!-- Etiqueta caja principal -->
+    <line x1="220" y1="148" x2="155" y2="120" stroke="#4ADE80" stroke-width="0.8" opacity="0.6"/>
+    <rect x="60" y="100" width="92" height="36" fill="rgba(10,24,16,0.9)" stroke="#22C55E" stroke-width="0.8"/>
+    <text x="106" y="113" fill="#4ADE80" font-family="JetBrains Mono" font-size="7" text-anchor="middle" font-weight="bold">Caja IP65</text>
+    <text x="106" y="123" fill="#6B7280" font-family="JetBrains Mono" font-size="6" text-anchor="middle">Heltec LoRa32 V3</text>
+    <text x="106" y="131" fill="#6B7280" font-family="JetBrains Mono" font-size="6" text-anchor="middle">ESP32-S3 · OLED</text>
+
+    <!-- Etiqueta panel solar -->
+    <line x1="268" y1="150" x2="200" y2="80" stroke="#FDE047" stroke-width="0.8" opacity="0.6"/>
+    <rect x="60" y="56" width="136" height="26" fill="rgba(10,24,16,0.9)" stroke="#FDE047" stroke-width="0.8"/>
+    <text x="128" y="67" fill="#FDE047" font-family="JetBrains Mono" font-size="6.5" text-anchor="middle" font-weight="bold">Panel Solar 5W · 6V</text>
+    <text x="128" y="76" fill="#6B7280" font-family="JetBrains Mono" font-size="6" text-anchor="middle">+ Módulo TP4056 carga</text>
+
+    <!-- Etiqueta OLED -->
+    <line x1="391" y1="128" x2="520" y2="80" stroke="#60A5FA" stroke-width="0.8" opacity="0.6"/>
+    <rect x="520" y="62" width="100" height="36" fill="rgba(10,24,16,0.9)" stroke="#60A5FA" stroke-width="0.8"/>
+    <text x="570" y="75" fill="#60A5FA" font-family="JetBrains Mono" font-size="6.5" text-anchor="middle" font-weight="bold">OLED 0.96"</text>
+    <text x="570" y="84" fill="#6B7280" font-family="JetBrains Mono" font-size="6" text-anchor="middle">NDVI · Hum · Temp</text>
+    <text x="570" y="92" fill="#6B7280" font-family="JetBrains Mono" font-size="6" text-anchor="middle">Estado LoRa</text>
+
+    <!-- Etiqueta poste -->
+    <line x1="332" y1="340" x2="270" y2="348" stroke="#94A3B8" stroke-width="0.8" opacity="0.6"/>
+    <rect x="170" y="338" width="98" height="24" fill="rgba(10,24,16,0.9)" stroke="#94A3B8" stroke-width="0.8"/>
+    <text x="219" y="349" fill="#94A3B8" font-family="JetBrains Mono" font-size="6.5" text-anchor="middle">Poste galvanizado</text>
+    <text x="219" y="357" fill="#6B7280" font-family="JetBrains Mono" font-size="5.5" text-anchor="middle">1.5m · montaje campo</text>
+
+  </svg>
+
+  <!-- Stats debajo del SVG -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-num">30 min</div>
+      <div class="stat-lbl">FRECUENCIA ENVÍO</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">5–7d</div>
+      <div class="stat-lbl">AUTONOMÍA BATERÍA</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">2–5km</div>
+      <div class="stat-lbl">ALCANCE LoRa CAMPO</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">IP65</div>
+      <div class="stat-lbl">PROTECCIÓN CAMPO</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">4</div>
+      <div class="stat-lbl">SENSORES POR NODO</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num sv-o">$1,110</div>
+      <div class="stat-lbl">MXN POR NODO</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SIDEBAR ══ -->
+<div class="sidebar">
+
+  <!-- Placa principal -->
+  <div class="sb-section">
+    <div class="sb-hdr">Heltec WiFi LoRa32 V3</div>
+    <div class="spec-row"><span class="spec-key">MCU</span><span class="spec-val sv-g">ESP32-S3 · 240 MHz · 8MB flash</span></div>
+    <div class="spec-row"><span class="spec-key">LoRa chip</span><span class="spec-val sv-b">SX1262 · 915 MHz (México)</span></div>
+    <div class="spec-row"><span class="spec-key">Alcance campo</span><span class="spec-val sv-g">2–5 km línea de vista</span></div>
+    <div class="spec-row"><span class="spec-key">Display</span><span class="spec-val">OLED 0.96" 128x64px integrado</span></div>
+    <div class="spec-row"><span class="spec-key">Conectividad extra</span><span class="spec-val">WiFi + BT (no usados en campo)</span></div>
+    <div class="spec-row"><span class="spec-key">Carga LiPo</span><span class="spec-val sv-g">Integrada · conector JST</span></div>
+    <div class="spec-row"><span class="spec-key">Consumo activo</span><span class="spec-val">~130 mA durante TX</span></div>
+    <div class="spec-row"><span class="spec-key">Consumo deep sleep</span><span class="spec-val sv-g">&lt;10 µA · 30 min entre lecturas</span></div>
+    <div class="spec-row"><span class="spec-key">Precio</span><span class="spec-val sv-o">~$550 MXN</span></div>
+  </div>
+
+  <!-- Sensores -->
+  <div class="sb-section">
+    <div class="sb-hdr">Sensores por Nodo</div>
+    <div class="spec-row"><span class="spec-key">GPIO36 (ADC)</span><span class="spec-val sv-g">Humedad suelo capacitivo v2.0</span></div>
+    <div class="spec-row" style="padding-left:36px;"><span class="spec-key" style="font-size:0.58rem;">Rango</span><span class="spec-val" style="font-size:0.58rem;color:#6B7280;">0–100% VWC · sin oxidación</span></div>
+    <div class="spec-row"><span class="spec-key">GPIO17</span><span class="spec-val sv-b">DHT22 temp + humedad aire</span></div>
+    <div class="spec-row" style="padding-left:36px;"><span class="spec-key" style="font-size:0.58rem;">Rango</span><span class="spec-val" style="font-size:0.58rem;color:#6B7280;">-40/80°C · 0-100% HR ±2%</span></div>
+    <div class="spec-row"><span class="spec-key">GPIO4</span><span class="spec-val sv-o">DS18B20 temp suelo OneWire</span></div>
+    <div class="spec-row" style="padding-left:36px;"><span class="spec-key" style="font-size:0.58rem;">Rango</span><span class="spec-val" style="font-size:0.58rem;color:#6B7280;">-55/125°C · ±0.5°C · waterproof</span></div>
+    <div class="spec-row"><span class="spec-key">GPIO34 (ADC)</span><span class="spec-val sv-y">FC-37 sensor lluvia digital</span></div>
+    <div class="spec-row" style="padding-left:36px;"><span class="spec-key" style="font-size:0.58rem;">Salida</span><span class="spec-val" style="font-size:0.58rem;color:#6B7280;">Digital HIGH/LOW · detección evento</span></div>
+  </div>
+
+  <!-- Firmware -->
+  <div class="sb-section">
+    <div class="sb-hdr">Firmware</div>
+    <div style="padding:12px 22px;">
+      <span class="pill pg">Arduino IDE 2.x</span>
+      <span class="pill pg">LMIC LoRaWAN</span>
+      <span class="pill pb">Cayenne LPP</span>
+      <span class="pill pb">U8g2 OLED</span>
+      <span class="pill po">DallasTemperature</span>
+      <span class="pill pg">DHT library</span>
+    </div>
+    <div class="spec-row"><span class="spec-key">Protocolo</span><span class="spec-val sv-g">LoRaWAN · OTAA join</span></div>
+    <div class="spec-row"><span class="spec-key">Formato payload</span><span class="spec-val">Cayenne LPP (binario compacto)</span></div>
+    <div class="spec-row"><span class="spec-key">Frecuencia TX</span><span class="spec-val">Cada 30 min (configurable)</span></div>
+    <div class="spec-row"><span class="spec-key">Deep sleep</span><span class="spec-val sv-g">Entre lecturas · µA consumo</span></div>
+    <div class="spec-row"><span class="spec-key">OLED en campo</span><span class="spec-val">Lecturas + estado LoRa · 10s</span></div>
+    <div class="spec-row"><span class="spec-key">config.h</span><span class="spec-val">DEVEUI, APPEUI, APPKEY TTN</span></div>
+  </div>
+
+  <!-- Pipeline de datos -->
+  <div class="sb-section">
+    <div class="sb-hdr">Pipeline de Datos IoT</div>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-num">1</div>
+        <div>
+          <div class="pipe-title">Nodo lee 4 sensores</div>
+          <div class="pipe-sub">GPIO36 + GPIO17 + GPIO4 + GPIO34<br>Construye payload Cayenne LPP</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">2</div>
+        <div>
+          <div class="pipe-title">Transmisión LoRa 915 MHz</div>
+          <div class="pipe-sub">SX1262 → OTAA join TTN<br>~100-200ms TX window</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">3</div>
+        <div>
+          <div class="pipe-title">Deep sleep 30 min</div>
+          <div class="pipe-sub">ESP32-S3 en deep sleep<br>&lt;10 µA consumo</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">4</div>
+        <div>
+          <div class="pipe-title">Gateway RPi+RAK recibe</div>
+          <div class="pipe-sub">8 canales simultáneos<br>Reenvía a TTN vía WiFi/LAN</div>
+        </div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">5</div>
+        <div>
+          <div class="pipe-title">TTN → FastAPI /ingest</div>
+          <div class="pipe-sub">Webhook HTTP POST<br>Validación Pydantic v2</div>
+        </div>
+      </div>
+      <div class="pipe-step" style="margin-bottom:0;">
+        <div class="pipe-num">6</div>
+        <div>
+          <div class="pipe-title">InfluxDB sensor_readings</div>
+          <div class="pipe-sub">Tags: node_id, parcela_id, rancho_id<br>Fields: soil_moisture, temps, hum, rain</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gateway -->
+  <div class="sb-section">
+    <div class="sb-hdr">Gateway LoRaWAN — Opciones</div>
+    <div class="gw-table">
+      <div class="gw-row" style="border-bottom:1px solid rgba(74,222,128,0.15);padding-bottom:10px;margin-bottom:4px;">
+        <div>
+          <div class="gw-name" style="color:var(--verde);font-weight:600;">✅ RPi 4 + RAK2287 HAT</div>
+          <div class="gw-note">8 canales · 50+ nodos · Recomendado MVP</div>
+        </div>
+        <div class="gw-price">~$2,000</div>
+      </div>
+      <div class="gw-row" style="border-bottom:1px solid rgba(74,222,128,0.08);padding-bottom:10px;margin-bottom:4px;">
+        <div>
+          <div class="gw-name">Heltec HT-M01</div>
+          <div class="gw-note">1 canal · Solo pruebas iniciales</div>
+        </div>
+        <div class="gw-price">~$800</div>
+      </div>
+      <div class="gw-row">
+        <div>
+          <div class="gw-name" style="color:var(--gris);">RAK7268 (todo en uno)</div>
+          <div class="gw-note">Producción · 8 canales · Enclosure incluido</div>
+        </div>
+        <div class="gw-price" style="color:var(--gris);">~$5,500</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOM -->
+  <div class="sb-section">
+    <div class="sb-hdr">Lista de Materiales (1 nodo)</div>
+    <div class="bom-wrap">
+      <table class="bom">
+        <thead>
+          <tr><th>Componente</th><th>Fuente</th><th>MXN</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Heltec WiFi LoRa32 V3</td><td>MeLi / AliEx</td><td>$550</td></tr>
+          <tr><td>Sensor humedad cap. v2.0</td><td>Ya disponible</td><td>$0</td></tr>
+          <tr><td>DHT22</td><td>El. Patria GDL</td><td>$80</td></tr>
+          <tr><td>DS18B20 + R 4.7kΩ</td><td>El. Patria GDL</td><td>$70</td></tr>
+          <tr><td>FC-37 sensor lluvia</td><td>MercadoLibre</td><td>$40</td></tr>
+          <tr><td>Batería 18650 3000mAh</td><td>MercadoLibre</td><td>$80</td></tr>
+          <tr><td>Módulo TP4056 solar</td><td>MercadoLibre</td><td>$30</td></tr>
+          <tr><td>Panel solar 5W 6V</td><td>MercadoLibre</td><td>$120</td></tr>
+          <tr><td>Caja hermética IP65</td><td>Home Depot</td><td>$120</td></tr>
+          <tr><td>Poste + cables + protoboard</td><td>El. Patria</td><td>$70</td></tr>
+          <tr class="bom-total"><td>TOTAL NODO</td><td></td><td>~$1,160</td></tr>
+          <tr class="bom-total" style="color:var(--naranj)!important;"><td>+ Gateway RPi+RAK</td><td></td><td>~$2,000</td></tr>
+          <tr class="bom-total" style="font-size:0.68rem;"><td>MVP COMPLETO (1 nodo)</td><td></td><td>~$3,160</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /sidebar -->
+</div><!-- /layout -->
+
+</body>
+</html>
