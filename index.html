@@ -1,157 +1,209 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-MX">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PrismarTech | Laboratorio de Tecnología</title>
+  <title>PrismarTech · Tecnología, flores y cine desde Jalisco</title>
+  <meta name="description" content="PrismarTech es un grupo de proyectos de Jalisco, México: tecnología satelital e IoT para riego agrícola, Prisma Flowers (flor de corte en Tonalá), realidad virtual y cortometrajes.">
+  <link rel="canonical" href="https://donpistolas.github.io/prismartech.io/">
+  <meta name="theme-color" content="#0b0d0c">
+  <link rel="icon" href="assets/prisma.svg" type="image/svg+xml">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:site_name" content="PrismarTech">
+  <meta property="og:title" content="PrismarTech · Tecnología, flores y cine desde Jalisco">
+  <meta property="og:description" content="Agricultura de precisión, flor de corte, realidad virtual y cortometrajes. Un grupo, varios rubros.">
+  <meta property="og:url" content="https://donpistolas.github.io/prismartech.io/">
+  <meta property="og:image" content="https://donpistolas.github.io/prismartech.io/assets/og-prismartech.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "PrismarTech",
+    "url": "https://donpistolas.github.io/prismartech.io/",
+    "logo": "https://donpistolas.github.io/prismartech.io/assets/prisma.svg",
+    "address": { "@type": "PostalAddress", "addressRegion": "Jalisco", "addressCountry": "MX" },
+    "subOrganization": [
+      { "@type": "Florist", "name": "Prisma Flowers", "url": "https://donpistolas.github.io/prismartech.io/flowers/" },
+      { "@type": "Organization", "name": "PrismarTech AgroTech", "url": "https://donpistolas.github.io/prismartech.io/agrotech/" }
+    ]
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #0a0f0d;
-      --bg2: #0f1a14;
-      --verde: #2ecc71;
-      --gris: #95a5a6;
-      --blanco: #ecf0f1;
-      --borde: rgba(46,204,113,0.25);
+      --bg: #0b0d0c;
+      --panel: #121614;
+      --line: rgba(255,255,255,0.09);
+      --text: #eef1ef;
+      --muted: #94a09a;
+      --tech: #2ecc71;
+      --flowers: #e0354d;
+      --vr: #8b7cf6;
+      --movies: #f2b544;
     }
-
     * { box-sizing: border-box; }
-
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      min-height: 100vh;
       background: var(--bg);
-      color: var(--blanco);
-      font-family: 'Segoe UI', Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 20px;
+      color: var(--text);
+      font: 400 16px/1.6 Inter, "Segoe UI", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
+    a { color: inherit; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
 
+    header { border-bottom: 1px solid var(--line); }
+    header .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 18px/1 "Space Grotesk", sans-serif; letter-spacing: .5px; }
+    .brand img { width: 26px; height: 26px; }
+    .brand b { color: var(--tech); font-weight: 700; }
+    nav a { color: var(--muted); text-decoration: none; font-size: 14px; margin-left: 22px; }
+    nav a:hover { color: var(--text); }
+
+    .hero { padding: 96px 0 72px; }
+    .eyebrow { font: 500 13px/1 "Space Grotesk", sans-serif; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
     h1 {
-      font-size: 3rem;
-      margin-bottom: 10px;
-      color: var(--verde);
-      letter-spacing: -1px;
+      font: 700 clamp(38px, 6.4vw, 72px)/1.04 "Space Grotesk", sans-serif;
+      letter-spacing: -1.5px; margin: 18px 0 22px; max-width: 900px;
     }
-
-    p {
-      max-width: 600px;
-      font-size: 1.1rem;
-      color: var(--gris);
-      margin-bottom: 50px;
-      line-height: 1.6;
+    h1 .spectrum {
+      background: linear-gradient(90deg, var(--tech), var(--flowers) 40%, var(--vr) 70%, var(--movies));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
     }
+    .lead { color: var(--muted); font-size: 18px; max-width: 620px; margin: 0; }
 
-    .cards {
-      display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 900px;
-      width: 100%;
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding-bottom: 96px; }
+    .unit {
+      --c: var(--tech);
+      position: relative; overflow: hidden;
+      background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+      padding: 30px; text-decoration: none; display: flex; flex-direction: column; min-height: 280px;
+      transition: border-color .25s, transform .25s;
     }
-
-    .card {
-      background: var(--bg2);
-      border: 1px solid var(--borde);
-      padding: 30px;
-      width: 280px;
-      text-align: left;
-      text-decoration: none;
-      color: inherit;
-      border-radius: 8px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
+    .unit::before {
+      content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--c);
     }
-
-    .card:hover {
-      transform: translateY(-8px);
-      border-color: var(--verde);
-      background: rgba(46, 204, 113, 0.05);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    a.unit:hover { border-color: var(--c); transform: translateY(-4px); }
+    .unit .tag { font: 500 12px/1 "Space Grotesk", sans-serif; letter-spacing: 2px; text-transform: uppercase; color: var(--c); }
+    .unit h2 { font: 700 30px/1.1 "Space Grotesk", sans-serif; margin: 14px 0 10px; letter-spacing: -.5px; }
+    .unit p { color: var(--muted); margin: 0 0 18px; max-width: 440px; }
+    .unit ul { list-style: none; padding: 0; margin: 0 0 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .unit li a, .unit li span {
+      display: inline-block; font-size: 13px; padding: 6px 12px; border-radius: 99px;
+      border: 1px solid var(--line); text-decoration: none; color: var(--text);
     }
+    .unit li a:hover { border-color: var(--c); }
+    .unit li span { color: var(--muted); }
+    .unit .go { margin-top: auto; font: 500 14px/1 "Space Grotesk", sans-serif; color: var(--c); }
+    .unit.soon .go { color: var(--muted); }
+    .flowers { --c: var(--flowers); }
+    .vr { --c: var(--vr); }
+    .movies { --c: var(--movies); }
+    .feature { grid-column: span 2; }
+    .feature .row { display: grid; grid-template-columns: 1.2fr 1fr; gap: 30px; align-items: center; }
+    .feature .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .feature .facts div { border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+    .feature .facts b { display: block; font: 700 22px/1.1 "Space Grotesk", sans-serif; color: var(--text); }
+    .feature .facts small { color: var(--muted); font-size: 13px; }
 
-    .card h2 {
-      margin: 0 0 12px;
-      font-size: 1.3rem;
-      color: var(--verde);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 26px; padding-bottom: 40px; }
 
-    .card span {
-      font-size: 0.9rem;
-      color: var(--gris);
-      line-height: 1.5;
-    }
-
-    .btn-link {
-      margin-top: 15px;
-      font-size: 0.8rem;
-      color: var(--verde);
-      font-weight: bold;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .card:hover .btn-link {
-      opacity: 1;
-    }
-
-    footer {
-      margin-top: 80px;
-      font-size: 0.8rem;
-      color: #555;
-      letter-spacing: 1px;
+    @media (max-width: 760px) {
+      nav { display: none; }
+      .hero { padding: 64px 0 48px; }
+      .grid { grid-template-columns: 1fr; }
+      .feature { grid-column: auto; }
+      .feature .row { grid-template-columns: 1fr; }
+      .unit { padding: 24px; min-height: 0; }
     }
   </style>
+  <script src="assets/analytics.js" defer></script>
 </head>
 <body>
 
-  <h1>PRISMAR<span style="color:var(--blanco)">TECH</span></h1>
-
-  <p>
-    Laboratorio de tecnología aplicada enfocado en datos, sensores, satélites
-    y sistemas inteligentes para resolver problemas reales en el campo.
-  </p>
-
-  <div class="cards">
-
-    <a class="card" href="https://donpistolas.github.io/prismartech.io/agrotech/">
-      <h2>🌱 AgroTech</h2>
-      <span>
-        AgroSense MVP · Satélite + IoT + IA · Agricultura de precisión y monitoreo de cultivos.
-      </span>
-      <div class="btn-link">EXPLORAR PROYECTO →</div>
-    </a>
-
-    <a class="card" href="https://donpistolas.github.io/prismartech.io/devices/">
-      <h2>📊 Devices</h2>
-      <span>
-        Dispositivos y tecnologia en desarrollo.
-      </span>
-      <div class="btn-link">EXPLORAR PROYECTO →</div>
-    </a>
-
-    <a class="card" href="#">
-      <h2>🛰️ Geoespacial</h2>
-      <span>
-        Procesamiento de imágenes satelitales y análisis territorial mediante GIS.
-      </span>
-      <div class="btn-link">PRÓXIMAMENTE</div>
-    </a>
-
+<header>
+  <div class="wrap">
+    <a class="brand" href="./"><img src="assets/prisma.svg" alt="" width="26" height="26"><span>PRISMAR<b>TECH</b></span></a>
+    <nav>
+      <a href="#tecnologia">Tecnología</a>
+      <a href="flowers/">Flowers</a>
+      <a href="#vr">VR</a>
+      <a href="#movies">Movies</a>
+    </nav>
   </div>
+</header>
 
-  <footer>
-    © 2026 · PRISMARTECH · JALISCO, MÉXICO
-  </footer>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Grupo PrismarTech · Jalisco, México</div>
+    <h1>Un grupo, varios rubros. <span class="spectrum">Del satélite al florero.</span></h1>
+    <p class="lead">Construimos tecnología para el campo, cultivamos flor de corte en Tonalá y contamos historias en video y realidad virtual.</p>
+  </section>
+
+  <section class="grid" aria-label="Empresas del grupo">
+
+    <a class="unit flowers feature" href="flowers/" data-track="hub-flowers">
+      <div class="row">
+        <div>
+          <div class="tag">Prisma Flowers · Ya disponible</div>
+          <h2>Flor cortada hoy en Tonalá</h2>
+          <p>Girasol sin polen, alhelí y nube. Mayoreo para florerías con entrega semanal y ramos a domicilio en Tonalá, Tlaquepaque y oriente de Guadalajara.</p>
+          <div class="go">Ver flores y precios →</div>
+        </div>
+        <div class="facts">
+          <div><b>Mismo día</b><small>del corte a tu florería</small></div>
+          <div><b>Sin polen</b><small>no mancha, dura más</small></div>
+          <div><b>$250</b><small>ramo de 10 girasoles</small></div>
+          <div><b>Semanal</b><small>la misma cantidad cada semana</small></div>
+        </div>
+      </div>
+    </a>
+
+    <div class="unit" id="tecnologia">
+      <div class="tag">PrismarTech · Tecnología</div>
+      <h2>Agricultura de precisión</h2>
+      <p>Satélite, sensores IoT e IA para monitorear cultivos y automatizar el riego agrícola.</p>
+      <ul>
+        <li><a href="agrotech/" data-track="hub-agrotech">AgroSense MVP</a></li>
+        <li><a href="devices/" data-track="hub-devices">Nodo IoT de campo</a></li>
+        <li><span>Geoespacial · pronto</span></li>
+      </ul>
+      <div class="go">En desarrollo</div>
+    </div>
+
+    <div class="unit vr soon" id="vr">
+      <div class="tag">Prisma VR</div>
+      <h2>Realidad virtual</h2>
+      <p>Experiencias inmersivas y video 360° para recorrer lugares y proyectos como si estuvieras ahí.</p>
+      <div class="go">Próximamente</div>
+    </div>
+
+    <div class="unit movies soon feature" id="movies">
+      <div class="tag">Prisma Movies</div>
+      <h2>Cortometrajes</h2>
+      <p>Historias propias filmadas en Jalisco. Aquí vivirán los cortos, el detrás de cámaras y los próximos estrenos.</p>
+      <div class="go">Próximamente</div>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 PrismarTech · Jalisco, México</span>
+    <span><a href="flowers/">Prisma Flowers</a> · <a href="agrotech/">AgroTech</a> · <a href="devices/">Devices</a></span>
+  </div>
+</footer>
 
 </body>
 </html>
